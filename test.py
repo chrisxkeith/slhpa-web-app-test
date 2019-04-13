@@ -29,14 +29,36 @@ class Tester:
     driver = None
     wait = None
 
-    def run_test(self, url):
-        self.driver.get(url)
-        time.sleep(2)
-        self.driver.close()
+    def run_view_test(self, url):
+        try:
+            self.driver.get(url)
+            time.sleep(2)
+        finally:
+            self.driver.close()
 
-    def main(self):
-        starttime = datetime.datetime.now()
-        log("Started tests")
+    def run_edit_test(self, url):
+        try:
+            self.driver.get(url)
+            time.sleep(2)
+        finally:
+            self.driver.close()
+
+    def set_web_driver(self, browser_type):
+        if browser_type == 'Chrome':
+            self.driver = webdriver.Chrome()
+        else:
+            if browser_type == 'Firefox':
+                self.driver = webdriver.Firefox()
+            else:
+                if browser_type == 'Edge':
+                    self.driver = webdriver.Edge()
+                else:
+                    if browser_type == 'Safari':
+                        self.driver = webdriver.Safari()
+                    else:
+                        raise "Unknown browser_type: " + browser_type
+
+    def run_test(self, url, run_all_tests):
         browser_types = ["Chrome", "Firefox"]
         if platform.system() == 'Windows':
             browser_types.append("Edge")
@@ -44,34 +66,26 @@ class Tester:
             browser_types.append("Safari")
         for browser_type in browser_types:
             try:
-                if browser_type == 'Chrome':
-                    self.driver = webdriver.Chrome()
-                else:
-                    if browser_type == 'Firefox':
-                        self.driver = webdriver.Firefox()
-                    else:
-                        if browser_type == 'Edge':
-                            self.driver = webdriver.Edge()
-                        else:
-                            if browser_type == 'Safari':
-                                self.driver = webdriver.Safari()
-                            else:
-                                raise "Unknown browser_type: " + browser_type
-
+                self.set_web_driver(browser_type)
                 self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
                                           ignored_exceptions=[NoSuchElementException,
                                                               ElementNotVisibleException,
                                                               ElementNotSelectableException])
-
                 # Implicit wait - tells web driver to poll the DOM for specified time;
                 # wait is set for duration of web driver object.
                 self.driver.implicitly_wait(2)
 
-                # self.run_test('http://127.0.0.1/slhpa/')
-                self.run_test('https://slhpa-03.appspot.com/slhpa/')
+                self.run_view_test(url)
+                if run_all_tests:
+                    self.run_edit_test(url)
             except:
                 log_exception('Failure in browser: ' + browser_type)
 
+    def main(self):
+        starttime = datetime.datetime.now()
+        log("Started tests")
+        self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
+        self.run_test('http://127.0.0.1:8000/slhpa/', True)
         seconds = (datetime.datetime.now() - starttime).seconds
         log("Elapsed seconds: " + str(int(seconds)))
 
