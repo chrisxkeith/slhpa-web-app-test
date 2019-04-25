@@ -6,13 +6,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotVisibleException
 from selenium.common.exceptions import ElementNotSelectableException
-# TODO : from django.test import TestCase
+from unittest import TestCase
 import time
 import os
 import platform
 import sys
 import datetime
 import re
+import time
 
 
 def log(message):
@@ -25,23 +26,17 @@ def log_exception(message):
                               [0]) + ' : ' + str(sys.exc_info()[1]))
 
 
-class Tester:
+class Tester(TestCase):
     driver = None
     wait = None
 
     def run_view_test(self, url):
-        try:
-            self.driver.get(url)
-            time.sleep(2)
-        finally:
-            self.driver.close()
+        self.driver.get(url)
+        time.sleep(2)
 
     def run_edit_test(self, url):
-        try:
-            self.driver.get(url)
-            time.sleep(2)
-        finally:
-            self.driver.close()
+        self.driver.get(url)
+        time.sleep(2)
 
     def set_web_driver(self, browser_type):
         if browser_type == 'Chrome':
@@ -58,19 +53,19 @@ class Tester:
                     else:
                         raise "Unknown browser_type: " + browser_type
 
-    def run_test(self, url, run_all_tests):
-        browser_types = ["Chrome", "Firefox"]
-        if platform.system() == 'Windows':
-            browser_types.append("Edge")
-        if platform.system() == 'Darwin':
-            browser_types.append("Safari")
-        for browser_type in browser_types:
+    def run_test(self, url, browser_type, run_all_tests):
+        if platform.system() == 'Windows' and browser_type == 'Safari':
+            return
+        if platform.system() == 'Darwin' and browser_type == 'Edge':
+            return
+        time.sleep(3)
+        try:
+            self.set_web_driver(browser_type)
             try:
-                self.set_web_driver(browser_type)
                 self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
-                                          ignored_exceptions=[NoSuchElementException,
-                                                              ElementNotVisibleException,
-                                                              ElementNotSelectableException])
+                                            ignored_exceptions=[NoSuchElementException,
+                                                                ElementNotVisibleException,
+                                                                ElementNotSelectableException])
                 # Implicit wait - tells web driver to poll the DOM for specified time;
                 # wait is set for duration of web driver object.
                 self.driver.implicitly_wait(2)
@@ -78,17 +73,35 @@ class Tester:
                 self.run_view_test(url)
                 if run_all_tests:
                     self.run_edit_test(url)
-            except:
-                log_exception('Failure in browser: ' + browser_type)
+            finally:
+                self.driver.close()
 
-    def main(self):
-        starttime = datetime.datetime.now()
-        log("Started tests")
-        self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
-        self.run_test('http://127.0.0.1:8000/slhpa/', True)
-        seconds = (datetime.datetime.now() - starttime).seconds
-        log("Elapsed seconds: " + str(int(seconds)))
+        except:
+            self.fail('Failure in browser: ' + browser_type)
 
+    gcp = 'https://slhpa-03.appspot.com/slhpa/'
+    def test_gcp_firefox(self):
+        self.run_test(self.gcp, "Firefox", False)
 
-if '__main__' == __name__:
-    Tester().main()
+    def test_gcp_chrome(self):
+        self.run_test(self.gcp, "Chrome", False)
+
+    def test_gcp_edge(self):
+        self.run_test(self.gcp, "Edge", False)
+
+    def test_gcp_safari(self):
+        self.run_test(self.gcp, "Safari", False)
+
+    local = 'http://127.0.0.1:8000/slhpa/'
+    def test_local_firefox(self):
+        self.run_test(self.local, "Firefox", True)
+
+    def test_local_chrome(self):
+        self.run_test(self.local, "Chrome", True)
+
+    def test_local_edge(self):
+        self.run_test(self.local, "Edge", True)
+
+    def test_local_safari(self):
+        self.run_test(self.local, "Safari", True)
+
