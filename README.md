@@ -1,6 +1,6 @@
 # slhpa-web-app-test
 
-- cd *the_parent_directory_of_your_repository/ies*
+- cd *the_parent_directory_of_your_repository*
 - git clone https://github.com/chrisxkeith/slhpa-web-app-test.git
 - cd slhpa-web-app-test
 - pip install -r requirements.txt
