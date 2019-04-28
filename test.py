@@ -14,7 +14,7 @@ import sys
 import datetime
 import re
 import time
-
+import unittest
 
 def log(message):
     script_name = sys.argv[0]
@@ -105,3 +105,5 @@ class Tester(TestCase):
     def test_local_safari(self):
         self.run_test(self.local, "Safari", True)
 
+if __name__ == '__main__':
+    unittest.main()
