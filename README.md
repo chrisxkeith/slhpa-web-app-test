@@ -2,7 +2,7 @@
 
 - cd *the_parent_directory_of_your_repository/ies*
 - git clone https://github.com/chrisxkeith/slhpa-web-app-test.git
-- slhpa-web-app-test
+- cd slhpa-web-app-test
 - pip install -r requirements.txt
 
 Download appropriate selenium drivers
