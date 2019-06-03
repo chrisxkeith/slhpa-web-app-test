@@ -75,35 +75,27 @@ class Tester(TestCase):
                     self.run_edit_test(url)
             finally:
                 self.driver.close()
-
         except:
-            self.fail('Failure in browser: ' + browser_type)
+            if browser_type == 'Chrome':
+                log('No Chrome browser?')
+            else:
+                self.fail('Failure in browser: ' + browser_type)
 
-    gcp = 'https://slhpa-03.appspot.com/slhpa/'
-    def test_gcp_firefox(self):
-        self.run_test(self.gcp, "Firefox", False)
+    def run_one_env(self, url, editable):
+        self.run_test(url, "Firefox", False)
+        self.run_test(url, "Chrome", False)
+        self.run_test(url, "Edge", False)
+        self.run_test(url, "Safari", False)
 
-    def test_gcp_chrome(self):
-        self.run_test(self.gcp, "Chrome", False)
+    def test_gcp_no_edit(self):
+        self.run_one_env('https://slhpa-03.appspot.com/slhpa/', False)
 
-    def test_gcp_edge(self):
-        self.run_test(self.gcp, "Edge", False)
+    def test_gcp_edit(self):
+        self.run_one_env('https://slhpa-06.appspot.com/slhpa/', True)
 
-    def test_gcp_safari(self):
-        self.run_test(self.gcp, "Safari", False)
-
-    local = 'http://127.0.0.1:8000/slhpa/'
-    def test_local_firefox(self):
-        self.run_test(self.local, "Firefox", True)
-
-    def test_local_chrome(self):
-        self.run_test(self.local, "Chrome", True)
-
-    def test_local_edge(self):
-        self.run_test(self.local, "Edge", True)
-
-    def test_local_safari(self):
-        self.run_test(self.local, "Safari", True)
+    def test_local(self):
+        self.run_one_env('http://127.0.0.1:8000/slhpa/', True)
 
 if __name__ == '__main__':
     unittest.main()
+ 
