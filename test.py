@@ -30,13 +30,21 @@ class Tester(TestCase):
     driver = None
     wait = None
 
-    def run_view_test(self, url):
+    def run_base_test(self, url):
         self.driver.get(url)
         time.sleep(2)
+        edit_field = self.driver.find_elements(By.XPATH, "//*[@id=\"id_resource_name__contains\"]")
+        self.assertIsNot(edit_field, None)
+        rows = self.driver.find_elements(By.XPATH, "//td")
+        log(url + ": found " + str(len(rows)) + " on page")
+        if rows:
+            pass
+
+    def run_view_test(self, url):
+        self.run_base_test(url)
 
     def run_edit_test(self, url):
-        self.driver.get(url)
-        time.sleep(2)
+        self.run_base_test(url)
 
     def set_web_driver(self, browser_type):
         if browser_type == 'Chrome':
