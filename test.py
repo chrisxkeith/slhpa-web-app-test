@@ -25,6 +25,8 @@ def log_exception(message):
     log(message + ' : ' + str(sys.exc_info()
                               [0]) + ' : ' + str(sys.exc_info()[1]))
 
+browsers = [ 'Firefox', 'Chrome', 'Edge', 'Safari' ]
+urls = [ 'https://slhpa-03.appspot.com/slhpa/', 'https://slhpa-06.appspot.com/slhpa/', 'http://127.0.0.1:8000/slhpa/' ]
 
 class Tester(TestCase):
     driver = None
@@ -80,7 +82,8 @@ class Tester(TestCase):
 
                 self.run_view_test(url)
                 if run_all_tests:
-                    self.run_edit_test(url)
+                    pass # until we have a real test.
+                    # self.run_edit_test(url)
             finally:
                 self.driver.close()
         except:
@@ -90,20 +93,23 @@ class Tester(TestCase):
                 self.fail('Failure in browser: ' + browser_type)
 
     def run_one_env(self, url, editable):
-        self.run_test(url, "Firefox", False)
-        self.run_test(url, "Chrome", False)
-        self.run_test(url, "Edge", False)
-        self.run_test(url, "Safari", False)
+        for browser in browsers:
+            self.run_test(url, browser, editable)
 
-    def test_gcp_no_edit(self):
-        self.run_one_env('https://slhpa-03.appspot.com/slhpa/', False)
+    def test_1_local(self):
+        if 'http://127.0.0.1:8000/slhpa/' in urls:
+            self.run_one_env('http://127.0.0.1:8000/slhpa/', True)
 
-    def test_gcp_edit(self):
-        self.run_one_env('https://slhpa-06.appspot.com/slhpa/', True)
+    def test_2_gcp_no_edit(self):
+        if 'https://slhpa-03.appspot.com/slhpa/' in urls:
+            self.run_one_env('https://slhpa-03.appspot.com/slhpa/', False)
 
-    def test_local(self):
-        self.run_one_env('http://127.0.0.1:8000/slhpa/', True)
+    def test_3_gcp_edit(self):
+        if 'https://slhpa-06.appspot.com/slhpa/' in urls:
+            self.run_one_env('https://slhpa-06.appspot.com/slhpa/', True)
 
 if __name__ == '__main__':
+    browsers = [ "Chrome" ]
+    urls = [ 'http://127.0.0.1:8000/slhpa/', 'https://slhpa-03.appspot.com/slhpa/' ]
     unittest.main()
  
