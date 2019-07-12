@@ -37,10 +37,9 @@ class Tester(TestCase):
         time.sleep(2)
         edit_field = self.driver.find_elements(By.XPATH, "//*[@id=\"id_resource_name__contains\"]")
         self.assertIsNot(edit_field, None)
-        rows = self.driver.find_elements(By.XPATH, "//td")
+        rows = self.driver.find_elements(By.XPATH, "//tr")
         log(url + ": found " + str(len(rows)) + " on page")
-        if rows:
-            pass
+        self.assertEqual(11, len(rows)) # header row plus 10 data rows.
 
     def run_view_test(self, url):
         self.run_base_test(url)
