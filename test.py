@@ -32,18 +32,28 @@ class Tester(TestCase):
     driver = None
     wait = None
 
+    def check_row_count(self, url, c):
+        rows = self.driver.find_elements(By.XPATH, "//tr")
+        log("found " + str(len(rows)) + " on " + url)
+        self.assertEqual(c + 1, len(rows)) # header row plus c data rows.
+
     def run_base_test(self, url):
         self.driver.get(url)
         time.sleep(2)
         edit_field = self.driver.find_elements(By.XPATH, "//*[@id=\"id_resource_name__contains\"]")
         self.assertIsNot(edit_field, None)
-        rows = self.driver.find_elements(By.XPATH, "//tr")
-        log(url + ": found " + str(len(rows)) + " on page")
         if url == 'https://slhpa-06.appspot.com/slhpa/':
-            expected = 1
+            self.check_row_count(url, 0)
         else:
-            expected = 11
-        self.assertEqual(expected, len(rows)) # header row plus 10 data rows.
+            self.check_row_count(url, 10)
+
+            # #id_records_per_page > option:nth-child(2)
+            # document.querySelector("#id_records_per_page > option:nth-child(2)")
+            # //*[@id="id_records_per_page"]/option[2]
+            
+            set_to_25 = self.driver.find_element(By.XPATH, "//*[@id=\"id_records_per_page\"]/option[2]")
+            set_to_25.click()
+            self.check_row_count(url, 25)
 
     def run_view_test(self, url):
         self.run_base_test(url)
