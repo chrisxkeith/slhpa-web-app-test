@@ -46,11 +46,6 @@ class Tester(TestCase):
             self.check_row_count(url, 0)
         else:
             self.check_row_count(url, 10)
-
-            # #id_records_per_page > option:nth-child(2)
-            # document.querySelector("#id_records_per_page > option:nth-child(2)")
-            # //*[@id="id_records_per_page"]/option[2]
-            
             set_to_25 = self.driver.find_element(By.XPATH, "//*[@id=\"id_records_per_page\"]/option[2]")
             set_to_25.click()
             self.check_row_count(url, 25)
