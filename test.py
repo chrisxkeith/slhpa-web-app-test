@@ -39,7 +39,11 @@ class Tester(TestCase):
         self.assertIsNot(edit_field, None)
         rows = self.driver.find_elements(By.XPATH, "//tr")
         log(url + ": found " + str(len(rows)) + " on page")
-        self.assertEqual(11, len(rows)) # header row plus 10 data rows.
+        if url == 'https://slhpa-06.appspot.com/slhpa/':
+            expected = 1
+        else:
+            expected = 11
+        self.assertEqual(expected, len(rows)) # header row plus 10 data rows.
 
     def run_view_test(self, url):
         self.run_base_test(url)
@@ -62,50 +66,41 @@ class Tester(TestCase):
                     else:
                         raise "Unknown browser_type: " + browser_type
 
-    def run_test(self, url, browser_type, run_all_tests):
-        if platform.system() == 'Windows' and browser_type == 'Safari':
-            return
-        if platform.system() == 'Darwin' and browser_type == 'Edge':
-            return
+    def run_test(self, url, run_all_tests):
         time.sleep(3)
-        try:
-            self.set_web_driver(browser_type)
-            try:
-                self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
-                                            ignored_exceptions=[NoSuchElementException,
-                                                                ElementNotVisibleException,
-                                                                ElementNotSelectableException])
-                # Implicit wait - tells web driver to poll the DOM for specified time;
-                # wait is set for duration of web driver object.
-                self.driver.implicitly_wait(2)
+        self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
+                                    ignored_exceptions=[NoSuchElementException,
+                                                        ElementNotVisibleException,
+                                                        ElementNotSelectableException])
+        # Implicit wait - tells web driver to poll the DOM for specified time;
+        # wait is set for duration of web driver object.
+        self.driver.implicitly_wait(2)
 
-                self.run_view_test(url)
-                if run_all_tests:
-                    pass # until we have a real test.
-                    # self.run_edit_test(url)
+        self.run_view_test(url)
+        if run_all_tests:
+            pass # until we have a real test.
+            # self.run_edit_test(url)
+
+    def test_by_browser(self):
+        for browser_type in browsers:
+            if platform.system() == 'Windows' and browser_type == 'Safari':
+                continue
+            if platform.system() == 'Darwin' and browser_type == 'Edge':
+                continue
+            try:
+                self.set_web_driver(browser_type)
+                if 'http://127.0.0.1:8000/slhpa/' in urls:
+                    self.run_test('http://127.0.0.1:8000/slhpa/', True)
+
+                if 'https://slhpa-03.appspot.com/slhpa/' in urls:
+                    self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
+
+                if 'https://slhpa-06.appspot.com/slhpa/' in urls:
+                    self.run_test('https://slhpa-06.appspot.com/slhpa/', True)
+            except:
+                self.fail('Failure in browser: ' + browser_type)
             finally:
                 self.driver.close()
-        except:
-            if browser_type == 'Chrome':
-                log('No Chrome browser?')
-            else:
-                self.fail('Failure in browser: ' + browser_type)
-
-    def run_one_env(self, url, editable):
-        for browser in browsers:
-            self.run_test(url, browser, editable)
-
-    def test_1_local(self):
-        if 'http://127.0.0.1:8000/slhpa/' in urls:
-            self.run_one_env('http://127.0.0.1:8000/slhpa/', True)
-
-    def test_2_gcp_no_edit(self):
-        if 'https://slhpa-03.appspot.com/slhpa/' in urls:
-            self.run_one_env('https://slhpa-03.appspot.com/slhpa/', False)
-
-    def test_3_gcp_edit(self):
-        if 'https://slhpa-06.appspot.com/slhpa/' in urls:
-            self.run_one_env('https://slhpa-06.appspot.com/slhpa/', True)
 
 if __name__ == '__main__':
     browsers = [ "Chrome" ]
