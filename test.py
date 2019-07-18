@@ -54,7 +54,7 @@ class Tester(TestCase):
         self.run_base_test(url)
 
     def run_edit_test(self, url):
-        self.run_base_test(url)
+        pass # TODO : Edit is disabled on GCP
 
     def set_web_driver(self, browser_type):
         if browser_type == 'Chrome':
@@ -71,6 +71,8 @@ class Tester(TestCase):
                     else:
                         raise "Unknown browser_type: " + browser_type
 
+    # TODO : Search works (count > someValue)
+    # TODO : Photo exists for 00000001
     def run_test(self, url, run_all_tests):
         time.sleep(3)
         self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
@@ -83,8 +85,7 @@ class Tester(TestCase):
 
         self.run_view_test(url)
         if run_all_tests:
-            pass # until we have a real test.
-            # self.run_edit_test(url)
+            self.run_edit_test(url)
 
     def test_by_browser(self):
         for browser_type in browsers:
