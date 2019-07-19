@@ -42,7 +42,7 @@ class Tester(TestCase):
         time.sleep(2)
         edit_field = self.driver.find_elements(By.XPATH, "//*[@id=\"id_resource_name__contains\"]")
         self.assertIsNot(edit_field, None)
-        if url == 'https://slhpa-06.appspot.com/slhpa/':
+        if 'https://slhpa-06.appspot.com/slhpa/' in url:
             self.check_row_count(url, 0)
         else:
             self.check_row_count(url, 10)
@@ -52,6 +52,8 @@ class Tester(TestCase):
 
     def run_view_test(self, url):
         self.run_base_test(url)
+        # TODO : Search works (count > someValue)
+        # TODO : Photo exists for 00000001
 
     def run_edit_test(self, url):
         pass # TODO : Edit is disabled on GCP
@@ -71,8 +73,6 @@ class Tester(TestCase):
                     else:
                         raise "Unknown browser_type: " + browser_type
 
-    # TODO : Search works (count > someValue)
-    # TODO : Photo exists for 00000001
     def run_test(self, url, run_all_tests):
         time.sleep(3)
         self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
@@ -87,6 +87,23 @@ class Tester(TestCase):
         if run_all_tests:
             self.run_edit_test(url)
 
+    def run_local_tests(self):
+        if 'http://127.0.0.1:8000/slhpa/' in urls:
+            self.run_test('http://127.0.0.1:8000/slhpa/', True)
+
+        if 'http://127.0.0.1:8000/slhpa/new/' in urls:
+            self.run_test('http://127.0.0.1:8000/slhpa/new/', True)
+
+    def run_gcp_tests(self):
+        if 'https://slhpa-03.appspot.com/slhpa/' in urls:
+            self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
+
+        if 'https://slhpa-03.appspot.com/slhpa/new/' in urls:
+            self.run_test('https://slhpa-03.appspot.com/slhpa/new/', False)
+
+        if 'https://slhpa-06.appspot.com/slhpa/' in urls:
+            self.run_test('https://slhpa-06.appspot.com/slhpa/', True)
+
     def test_by_browser(self):
         for browser_type in browsers:
             if platform.system() == 'Windows' and browser_type == 'Safari':
@@ -95,14 +112,8 @@ class Tester(TestCase):
                 continue
             try:
                 self.set_web_driver(browser_type)
-                if 'http://127.0.0.1:8000/slhpa/' in urls:
-                    self.run_test('http://127.0.0.1:8000/slhpa/', True)
-
-                if 'https://slhpa-03.appspot.com/slhpa/' in urls:
-                    self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
-
-                if 'https://slhpa-06.appspot.com/slhpa/' in urls:
-                    self.run_test('https://slhpa-06.appspot.com/slhpa/', True)
+                self.run_local_tests()
+                self.run_gcp_tests()
             except:
                 self.fail('Failure in browser: ' + browser_type)
             finally:
