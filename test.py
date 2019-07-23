@@ -13,7 +13,6 @@ import platform
 import sys
 import datetime
 import re
-import time
 import unittest
 
 def log(message):
@@ -121,6 +120,7 @@ class Tester(TestCase):
 
 if __name__ == '__main__':
     browsers = [ "Chrome" ]
-    urls = [ 'http://127.0.0.1:8000/slhpa/', 'https://slhpa-03.appspot.com/slhpa/' ]
+    urls = [ 'http://127.0.0.1:8000/slhpa/', 'http://127.0.0.1:8000/slhpa/new/', 
+            'https://slhpa-03.appspot.com/slhpa/', 'https://slhpa-03.appspot.com/slhpa/new/' ]
     unittest.main()
  
