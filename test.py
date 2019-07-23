@@ -36,6 +36,37 @@ class Tester(TestCase):
         log("found " + str(len(rows)) + " on " + url)
         self.assertEqual(c + 1, len(rows)) # header row plus c data rows.
 
+    def extract_count(self, index):
+        search_result_count = self.driver.find_element(
+            By.XPATH, "//span[contains(text(),'Search matches: ')]")
+        p = re.compile(r'\d+')
+        m = p.findall(search_result_count.text)
+        return int(m[index])
+
+    def verify_search(self):
+        total_records = self.extract_count(1)
+
+        search_field = self.driver.find_element_by_id('id_search_term')
+        search_field.send_keys('Estudillo')
+
+        search_button = self.driver.find_element(
+            By.XPATH, "//button[contains(text(),'Search')]")
+        search_button.send_keys(Keys.ENTER)
+    
+        searched_records = self.extract_count(0)
+        self.assertTrue(searched_records > 0 and searched_records < total_records)
+
+
+    def verify_photo(self):
+        # TODO : only checks if src attribute exists. Must be expanded to see if img file is actually there.
+        images = self.driver.find_elements(By.XPATH, "//img")
+        self.assertIsNotNone(images)
+        for image in images:
+            src = image.get_attribute("src")
+            if '00000001.jpg' in src:
+                return
+        self.assertTrue(False, 'No img with 00000001.jpg src.')
+    
     def run_base_test(self, url):
         self.driver.get(url)
         time.sleep(2)
@@ -48,8 +79,11 @@ class Tester(TestCase):
             set_to_25 = self.driver.find_element(By.XPATH, "//*[@id=\"id_records_per_page\"]/option[2]")
             set_to_25.click()
             self.check_row_count(url, 25)
-            # TODO : Search works (count > someValue)
-            # TODO : Photo exists for 00000001
+            self.verify_photo()
+            # If we ever want to automate search testing in old listview,
+            # we must write a completely separate function.
+            if '/slhpa/new/' in url:
+                self.verify_search()
 
     def run_view_test(self, url):
         self.run_base_test(url)
