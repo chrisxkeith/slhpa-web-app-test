@@ -48,14 +48,17 @@ class Tester(TestCase):
             set_to_25 = self.driver.find_element(By.XPATH, "//*[@id=\"id_records_per_page\"]/option[2]")
             set_to_25.click()
             self.check_row_count(url, 25)
+            # TODO : Search works (count > someValue)
+            # TODO : Photo exists for 00000001
 
     def run_view_test(self, url):
         self.run_base_test(url)
-        # TODO : Search works (count > someValue)
-        # TODO : Photo exists for 00000001
 
     def run_edit_test(self, url):
-        pass # TODO : Edit is disabled on GCP
+        add_new = self.driver.find_element(
+            By.XPATH, "//a[contains(text(),'Add new photo record')]")
+        if add_new:
+            self.assertTrue('https://slhpa-06.appspot.com/slhpa/' in url or 'http://127.0.0.1:8000/slhpa/' in url)
 
     def set_web_driver(self, browser_type):
         if browser_type == 'Chrome':
