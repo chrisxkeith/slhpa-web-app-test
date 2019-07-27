@@ -82,7 +82,7 @@ class Tester(TestCase):
             self.verify_photo()
             # If we ever want to automate search testing in old listview,
             # we must write a completely separate function.
-            if '/slhpa/new/' in url:
+            if not 'old/' in url:
                 self.verify_search()
 
     def run_view_test(self, url):
@@ -127,15 +127,15 @@ class Tester(TestCase):
         if 'http://127.0.0.1:8000/slhpa/' in urls:
             self.run_test('http://127.0.0.1:8000/slhpa/', True)
 
-        if 'http://127.0.0.1:8000/slhpa/new/' in urls:
-            self.run_test('http://127.0.0.1:8000/slhpa/new/', True)
+        if 'http://127.0.0.1:8000/slhpa/old/' in urls:
+            self.run_test('http://127.0.0.1:8000/slhpa/old/', True)
 
     def run_gcp_tests(self):
         if 'https://slhpa-03.appspot.com/slhpa/' in urls:
             self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
 
-        if 'https://slhpa-03.appspot.com/slhpa/new/' in urls:
-            self.run_test('https://slhpa-03.appspot.com/slhpa/new/', False)
+        if 'https://slhpa-03.appspot.com/slhpa/old/' in urls:
+            self.run_test('https://slhpa-03.appspot.com/slhpa/old/', False)
 
         if 'https://slhpa-06.appspot.com/slhpa/' in urls:
             self.run_test('https://slhpa-06.appspot.com/slhpa/', True)
@@ -150,14 +150,14 @@ class Tester(TestCase):
                 self.set_web_driver(browser_type)
                 self.run_local_tests()
                 self.run_gcp_tests()
-            except:
-                self.fail('Failure in browser: ' + browser_type)
             finally:
                 self.driver.close()
 
 if __name__ == '__main__':
     browsers = [ "Chrome" ]
-    urls = [ 'http://127.0.0.1:8000/slhpa/', 'http://127.0.0.1:8000/slhpa/new/', 
-            'https://slhpa-03.appspot.com/slhpa/', 'https://slhpa-03.appspot.com/slhpa/new/' ]
+    urls = [ 'http://127.0.0.1:8000/slhpa/',
+             'https://slhpa-03.appspot.com/slhpa/',
+             'http://127.0.0.1:8000/slhpa/old/',
+             'https://slhpa-03.appspot.com/slhpa/old/' ]
     unittest.main()
  
