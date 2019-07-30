@@ -31,8 +31,9 @@ class Tester(TestCase):
     driver = None
     wait = None
 
-    def check_row_count(self, url, c):
-        time.sleep(4) # Edge :( :( :(
+    def check_row_count(self, url, c, browser_type):
+        if browser_type != "Chrome":
+            time.sleep(4) # :( :( :(
         rows = self.driver.find_elements(By.XPATH, "//tr")
         log("found " + str(len(rows)) + " on " + url)
         if c + 1 != len(rows):
@@ -46,7 +47,7 @@ class Tester(TestCase):
         m = p.findall(search_result_count.text)
         return int(m[index])
 
-    def verify_search(self):
+    def verify_search(self, browser_type):
         total_records = self.extract_count(1)
 
         search_field = self.driver.find_element_by_id('id_search_term')
@@ -55,9 +56,11 @@ class Tester(TestCase):
         search_button = self.driver.find_element(
             By.XPATH, "//button[contains(text(),'Search')]")
         search_button.send_keys(Keys.ENTER)
-        time.sleep(3) # Firefox :( :( :(
+        if browser_type != "Chrome":
+            time.sleep(3) # :( :( :(
         searched_records = self.extract_count(0)
-        self.assertTrue(searched_records > 0 and searched_records < total_records)
+        self.assertGreater(searched_records, 0, browser_type)
+        self.assertLess(searched_records, total_records, browser_type)
 
 
     def verify_photo(self):
@@ -70,26 +73,26 @@ class Tester(TestCase):
                 return
         self.assertTrue(False, 'No img with 00000001.jpg src.')
     
-    def run_base_test(self, url):
+    def run_base_test(self, url, browser_type):
         self.driver.get(url)
         time.sleep(2)
         edit_field = self.driver.find_elements(By.XPATH, "//*[@id=\"id_resource_name__contains\"]")
         self.assertIsNot(edit_field, None)
         if 'https://slhpa-06.appspot.com/slhpa/' in url:
-            self.check_row_count(url, 0)
+            self.check_row_count(url, 0, browser_type)
         else:
-            self.check_row_count(url, 10)
+            self.check_row_count(url, 10, browser_type)
             set_to_25 = self.driver.find_element(By.XPATH, "//*[@id=\"id_records_per_page\"]/option[2]")
             set_to_25.click()
-            self.check_row_count(url, 25)
+            self.check_row_count(url, 25, browser_type)
             self.verify_photo()
             # If we ever want to automate search testing in old listview,
             # we must write a completely separate function.
             if not 'old/' in url:
-                self.verify_search()
+                self.verify_search(browser_type)
 
-    def run_view_test(self, url):
-        self.run_base_test(url)
+    def run_view_test(self, url, browser_type):
+        self.run_base_test(url, browser_type)
 
     def run_edit_test(self, url):
         add_new = self.driver.find_element(
@@ -112,7 +115,7 @@ class Tester(TestCase):
                     else:
                         raise "Unknown browser_type: " + browser_type
 
-    def run_test(self, url, run_all_tests):
+    def run_test(self, url, run_all_tests, browser_type):
         time.sleep(3)
         self.wait = WebDriverWait(self.driver, 10, poll_frequency=1,
                                     ignored_exceptions=[NoSuchElementException,
@@ -122,26 +125,26 @@ class Tester(TestCase):
         # wait is set for duration of web driver object.
         self.driver.implicitly_wait(2)
 
-        self.run_view_test(url)
+        self.run_view_test(url, browser_type)
         if run_all_tests:
             self.run_edit_test(url)
 
-    def run_local_tests(self):
+    def run_local_tests(self, browser_type):
         if 'http://127.0.0.1:8000/slhpa/' in urls:
-            self.run_test('http://127.0.0.1:8000/slhpa/', True)
+            self.run_test('http://127.0.0.1:8000/slhpa/', True, browser_type)
 
         if 'http://127.0.0.1:8000/slhpa/old/' in urls:
-            self.run_test('http://127.0.0.1:8000/slhpa/old/', True)
+            self.run_test('http://127.0.0.1:8000/slhpa/old/', True, browser_type)
 
-    def run_gcp_tests(self):
+    def run_gcp_tests(self, browser_type):
         if 'https://slhpa-03.appspot.com/slhpa/' in urls:
-            self.run_test('https://slhpa-03.appspot.com/slhpa/', False)
+            self.run_test('https://slhpa-03.appspot.com/slhpa/', False, browser_type)
 
         if 'https://slhpa-03.appspot.com/slhpa/old/' in urls:
-            self.run_test('https://slhpa-03.appspot.com/slhpa/old/', False)
+            self.run_test('https://slhpa-03.appspot.com/slhpa/old/', False, browser_type)
 
         if 'https://slhpa-06.appspot.com/slhpa/' in urls:
-            self.run_test('https://slhpa-06.appspot.com/slhpa/', True)
+            self.run_test('https://slhpa-06.appspot.com/slhpa/', True, browser_type)
 
     def test_by_browser(self):
         for browser_type in browsers:
@@ -151,13 +154,13 @@ class Tester(TestCase):
                 continue
             try:
                 self.set_web_driver(browser_type)
-                self.run_local_tests()
-                self.run_gcp_tests()
+                self.run_local_tests(browser_type)
+                self.run_gcp_tests(browser_type)
             finally:
                 self.driver.close()
 
 if __name__ == '__main__':
-    # browsers = [ "Chrome" ]
+    browsers = [ "Chrome" ]
     urls = [ 'http://127.0.0.1:8000/slhpa/',
              'https://slhpa-03.appspot.com/slhpa/',
              'http://127.0.0.1:8000/slhpa/old/',
