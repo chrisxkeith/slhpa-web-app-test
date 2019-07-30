@@ -32,8 +32,11 @@ class Tester(TestCase):
     wait = None
 
     def check_row_count(self, url, c):
+        time.sleep(4) # Edge :( :( :(
         rows = self.driver.find_elements(By.XPATH, "//tr")
         log("found " + str(len(rows)) + " on " + url)
+        if c + 1 != len(rows):
+            print('x')  # for debugging only.
         self.assertEqual(c + 1, len(rows)) # header row plus c data rows.
 
     def extract_count(self, index):
@@ -52,7 +55,7 @@ class Tester(TestCase):
         search_button = self.driver.find_element(
             By.XPATH, "//button[contains(text(),'Search')]")
         search_button.send_keys(Keys.ENTER)
-    
+        time.sleep(3) # Firefox :( :( :(
         searched_records = self.extract_count(0)
         self.assertTrue(searched_records > 0 and searched_records < total_records)
 
@@ -154,7 +157,7 @@ class Tester(TestCase):
                 self.driver.close()
 
 if __name__ == '__main__':
-    browsers = [ "Chrome" ]
+    # browsers = [ "Chrome" ]
     urls = [ 'http://127.0.0.1:8000/slhpa/',
              'https://slhpa-03.appspot.com/slhpa/',
              'http://127.0.0.1:8000/slhpa/old/',
